@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Http;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
@@ -12,17 +14,17 @@ if (app.Environment.IsDevelopment())
   app.UseSwaggerUI();
 }
 
-app.MapPost("/payments/pix", (TransferStatus dto) =>
+app.MapPost("/payments/pix", async (TransferStatus dto) => //PSP destino
 {
   Console.WriteLine($"Processing payment from {dto.Origin.User.CPF} to {dto.Destiny.Key.Value}");
   var timeToWait = GenerateRandomTime();
   Console.WriteLine($"This operation will return in {timeToWait} ms");
-  Thread.Sleep(timeToWait);
+  await Task.Delay(timeToWait);
 
-  return Results.Ok();
+  return GenerateRandomResponse(); // 10% de chance de erro
 });
 
-app.MapPatch("/payments/pix", (TransferStatusDTO dto) =>
+app.MapPatch("/payments/pix", (TransferStatusDTO dto) => //PSP origem
 {
   Console.WriteLine($"Processing payment status id {dto.Id} to {dto.Status}");
   return Results.NoContent();
@@ -34,8 +36,17 @@ static int GenerateRandomTime()
   Random random = new();
   int lowPercentage = 5; // 5% das reqs são lentas
   int percentageChoice = random.Next(1, 101);
-  if (percentageChoice <= lowPercentage) return random.Next(60000, 90000); // TODO: you can change
+  if (percentageChoice <= lowPercentage) return random.Next(130000, 180000); // TODO: you can change
   else return random.Next(100, 500);
+}
+
+static IResult GenerateRandomResponse()
+{
+  Random random = new();
+  int lowPercentage = 10; // 10% das reqs dão errado
+  int percentageChoice = random.Next(1, 101);
+  if (percentageChoice <= lowPercentage) return Results.UnprocessableEntity(); // TODO: you can change
+  else return Results.Ok();
 }
 
 app.UseHttpsRedirection();
