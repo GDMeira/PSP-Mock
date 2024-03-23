@@ -1,4 +1,7 @@
+using System.Text;
+using System.Text.Json;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,12 +33,21 @@ app.MapPatch("/payments/pix", (TransferStatusDTO dto) => //PSP origem
   return Results.NoContent();
 });
 
-app.MapPost("/concilliation/pix", (HttpRequest req) => //PSP origem concilliation
+app.MapPost("/concilliation/pix", async (HttpContext context) => //PSP origem concilliation
 {
-  Console.WriteLine($"Concilliation document: {req.Body}");
+    string requestBody;
+    using (var reader = new StreamReader(context.Request.Body, Encoding.UTF8))
+    {
+        requestBody = await reader.ReadToEndAsync();
+    }
 
-  return Results.NoContent(); 
+    Console.WriteLine($"Request Body: {requestBody}");
+
+    var dto = JsonSerializer.Deserialize<ConcilliationReqDTO>(requestBody);
+
+    return Results.NoContent();
 });
+
 
 
 static int GenerateRandomTime()
