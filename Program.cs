@@ -30,6 +30,13 @@ app.MapPatch("/payments/pix", (TransferStatusDTO dto) => //PSP origem
   return Results.NoContent();
 });
 
+app.MapPost("/concilliation/pix", (HttpRequest req) => //PSP origem concilliation
+{
+  Console.WriteLine($"Concilliation document: {req.Body}");
+
+  return Results.NoContent(); 
+});
+
 
 static int GenerateRandomTime()
 {
@@ -43,7 +50,7 @@ static int GenerateRandomTime()
 static IResult GenerateRandomResponse()
 {
   Random random = new();
-  int lowPercentage = 10; // 10% das reqs dão errado
+  int lowPercentage = 5; // 5% das reqs dão errado
   int percentageChoice = random.Next(1, 101);
   if (percentageChoice <= lowPercentage) return Results.UnprocessableEntity(); // TODO: you can change
   else return Results.Ok();
