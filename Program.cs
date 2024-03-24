@@ -62,7 +62,7 @@ static int GenerateRandomTime()
 static IResult GenerateRandomResponse()
 {
   Random random = new();
-  int lowPercentage = 5; // 5% das reqs dão errado
+  int lowPercentage = 1; // 1% das reqs dão errado
   int percentageChoice = random.Next(1, 101);
   if (percentageChoice <= lowPercentage) return Results.UnprocessableEntity(); // TODO: you can change
   else return Results.Ok();
